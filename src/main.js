@@ -1088,6 +1088,7 @@ function showVtoUI() {
     homeBtn.style.borderRadius = '20px';
     homeBtn.style.backdropFilter = 'blur(8px)';
     homeBtn.style.cursor = 'pointer';
+    homeBtn.style.pointerEvents = 'auto';
     homeBtn.style.fontFamily = "'Outfit', sans-serif";
     homeBtn.style.fontSize = '0.9rem';
     homeBtn.style.zIndex = '101';
