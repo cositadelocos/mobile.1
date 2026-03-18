@@ -19,13 +19,18 @@ const demoOutfitsMap = {
 let currentAvailableOutfits = [];
 
 // Generic single-image textures for all other outfits
-const genericTextures = {}; // e.g. { 'trajedemoA2': Image }
+const genericTextures = {}; // e.g. { 'trajedemoA3': Image }
 
 function getTextureForOutfit(outfitName) {
     if (outfitName === 'trajedemoA1') return null; // handled separately
     if (!genericTextures[outfitName]) {
         const img = new Image();
-        img.src = `${import.meta.env.BASE_URL}${outfitName}/textura.png?cb=` + new Date().getTime();
+        // Specific case for barequera
+        if (outfitName === 'trajedemoA2') {
+             img.src = `${import.meta.env.BASE_URL}${outfitName}/barequera.png?cb=` + new Date().getTime();
+        } else {
+             img.src = `${import.meta.env.BASE_URL}${outfitName}/textura.png?cb=` + new Date().getTime();
+        }
         genericTextures[outfitName] = img;
     }
     return genericTextures[outfitName];
@@ -401,6 +406,26 @@ async function renderLoop() {
                 const cy = midShoulderY + (drawHeight * 0.1);
                 ctx.drawImage(imgTorsoA1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
                 ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoA2' && genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                // SPECIAL LOGIC FOR "BAREQUERA"
+                // Split the image: Top half goes to the torso, bottom half goes to the skirt/legs
+                ctx.save();
+                ctx.clip(); // Clip to the torso path we just filled
+                
+                // For barefoot dress, we scale it to fit the torso width.
+                const drawWidth = shoulderW * 2.8; 
+                // The image contains both top and bottom, so we adjust the full height
+                const imgRatio = genericTex.naturalHeight / genericTex.naturalWidth;
+                const fullDrawHeight = drawWidth * imgRatio;
+                
+                // Center the TOP half right below the shoulders
+                // So the middle of the image (waist line) falls around the hips
+                const cy = midShoulderY + (fullDrawHeight * 0.25);
+                
+                // Draw the full image; the torso clipping path will naturally cut off the arms
+                // making it look sleeveless. The bottom half will overlap into the hip area.
+                ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - fullDrawHeight/2, drawWidth, fullDrawHeight);
+                ctx.restore();
             } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
                 ctx.save();
                 ctx.clip(); // Clip to the torso path we just filled
@@ -411,6 +436,7 @@ async function renderLoop() {
                 
                 // Center slightly below shoulders
                 const cy = midShoulderY + (drawHeight * 0.1);
+                // Tile or stretch the generic texture
                 ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
                 ctx.restore();
             }
@@ -525,19 +551,61 @@ async function renderLoop() {
             const slvPuff = shoulderW * 0.15;
             const legThick = shoulderW * 0.2;
 
-            // Left Arm
-            drawLimb(11, 13, slvPuff, 'leftArm', false); // Upper Arm
-            drawLimb(13, 15, slvPuff*0.8, 'leftArm', true); // Forearm (zoomed)
-            // Right Arm
-            drawLimb(12, 14, slvPuff, 'rightArm', false); // Upper Arm
-            drawLimb(14, 16, slvPuff*0.8, 'rightArm', true); // Forearm (zoomed)
+            if (chosenDemoOutfit !== 'trajedemoA2') {
+                // Left Arm
+                drawLimb(11, 13, slvPuff, 'leftArm', false); // Upper Arm
+                drawLimb(13, 15, slvPuff*0.8, 'leftArm', true); // Forearm (zoomed)
+                // Right Arm
+                drawLimb(12, 14, slvPuff, 'rightArm', false); // Upper Arm
+                drawLimb(14, 16, slvPuff*0.8, 'rightArm', true); // Forearm (zoomed)
+            } else {
+                // For trajedemoA2 (Barequera), we want a sleeveless look
+                // So we do NOT render the arm sleeves.
+            }
 
-            // Left Leg (thigh to knee)
-            drawLimb(23, 25, legThick, 'leftLeg', false); // Upper Leg (Bermuda)
-            drawLimb(25, 27, legThick*0.8, null, false); // Lower Leg (No texture)
-            // Right Leg
-            drawLimb(24, 26, legThick, 'rightLeg', false); // Upper Leg (Bermuda)
-            drawLimb(26, 28, legThick*0.8, null, false); // Lower Leg (No texture)
+            // For trajedemoA2 we want a skirt effect instead of individual pant legs.
+            // The torso path was extended down, but we can also draw a skirt block here spanning both legs
+            if (chosenDemoOutfit === 'trajedemoA2') {
+                 if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                      ctx.save();
+                      
+                      // Create a skirt path that bridges the gap between the two thighs
+                      if (pose[23].visibility > 0.5 && pose[24].visibility > 0.5 && pose[25].visibility > 0.5 && pose[26].visibility > 0.5) {
+                          const lKnee = mapPoint(pose[25]);
+                          const rKnee = mapPoint(pose[26]);
+                          
+                          ctx.beginPath();
+                          ctx.moveTo(lHip.x, lHip.y);
+                          ctx.lineTo(rHip.x, rHip.y);
+                          // Flare out slightly to the knees
+                          ctx.lineTo(rKnee.x + legThick, rKnee.y);
+                          ctx.lineTo(lKnee.x - legThick, lKnee.y);
+                          ctx.closePath();
+                          
+                          ctx.fill();
+                          ctx.clip();
+                          
+                          // Draw the BOTTOM half of the barequera image here
+                          const drawWidth = shoulderW * 3.0; // wider skirt
+                          const imgRatio = genericTex.naturalHeight / genericTex.naturalWidth;
+                          const fullDrawHeight = drawWidth * imgRatio;
+                          
+                          // Align so the waist of the image is at the hips
+                          const cy = midHipY + (fullDrawHeight * 0.1); // Shift it down
+                          ctx.drawImage(genericTex, midHipX - drawWidth/2, cy - fullDrawHeight/2, drawWidth, fullDrawHeight);
+                      }
+                      
+                      ctx.restore();
+                 }
+            } else {
+                // Standard individual pant legs
+                // Left Leg (thigh to knee)
+                drawLimb(23, 25, legThick, 'leftLeg', false); // Upper Leg (Bermuda)
+                drawLimb(25, 27, legThick*0.8, null, false); // Lower Leg (No texture)
+                // Right Leg
+                drawLimb(24, 26, legThick, 'rightLeg', false); // Upper Leg (Bermuda)
+                drawLimb(26, 28, legThick*0.8, null, false); // Lower Leg (No texture)
+            }
 
             ctx.restore();
         }
