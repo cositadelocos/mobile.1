@@ -22,15 +22,10 @@ let currentAvailableOutfits = [];
 const genericTextures = {}; // e.g. { 'trajedemoA3': Image }
 
 function getTextureForOutfit(outfitName) {
-    if (outfitName === 'trajedemoA1') return null; // handled separately
+    if (['trajedemoA1', 'trajedemoA2', 'trajedemoA3', 'trajedemoL1', 'trajedemoL2', 'trajedemoL3', 'trajedemoE1', 'trajedemoE2', 'trajedemoE3'].includes(outfitName)) return null; // handled separately
     if (!genericTextures[outfitName]) {
         const img = new Image();
-        // Specific case for barequera
-        if (outfitName === 'trajedemoA2') {
-             img.src = `${import.meta.env.BASE_URL}${outfitName}/barequera.png?cb=` + new Date().getTime();
-        } else {
-             img.src = `${import.meta.env.BASE_URL}${outfitName}/textura.png?cb=` + new Date().getTime();
-        }
+        img.src = `${import.meta.env.BASE_URL}${outfitName}/textura.png?cb=` + new Date().getTime();
         genericTextures[outfitName] = img;
     }
     return genericTextures[outfitName];
@@ -60,6 +55,93 @@ const partsMapA1 = {
     leftLeg: imgPiernaIzqA1,
     rightLeg: imgPiernaDerA1
 };
+
+// Texture Images for trajedemoA2
+const imgTorsoA2 = new Image();
+imgTorsoA2.src = `${import.meta.env.BASE_URL}trajedemoA2/barequeracamisa.png?cb=` + new Date().getTime();
+
+const imgFaldaA2 = new Image();
+imgFaldaA2.src = `${import.meta.env.BASE_URL}trajedemoA2/barequerafalda.png?cb=` + new Date().getTime();
+
+// Texture Images for trajedemoA3
+const imgTorsoA3 = new Image();
+imgTorsoA3.src = `${import.meta.env.BASE_URL}trajedemoA3/torsof.png?cb=` + new Date().getTime();
+
+const imgBrazoIzqA3 = new Image();
+imgBrazoIzqA3.src = `${import.meta.env.BASE_URL}trajedemoA3/brazoizquierdof.png?cb=` + new Date().getTime();
+
+const imgBrazoDerA3 = new Image();
+imgBrazoDerA3.src = `${import.meta.env.BASE_URL}trajedemoA3/brazoderechof.png?cb=` + new Date().getTime();
+
+const imgPiernaIzqA3 = new Image();
+imgPiernaIzqA3.src = `${import.meta.env.BASE_URL}trajedemoA3/piernaizquierdaf.png?cb=` + new Date().getTime();
+
+const imgPiernaDerA3 = new Image();
+imgPiernaDerA3.src = `${import.meta.env.BASE_URL}trajedemoA3/piernaderechaf.png?cb=` + new Date().getTime();
+
+// Define a map bridging limb names to their specific images
+const partsMapA3 = {
+    torso: imgTorsoA3,
+    leftArm: imgBrazoIzqA3,
+    rightArm: imgBrazoDerA3,
+    leftLeg: imgPiernaIzqA3,
+    rightLeg: imgPiernaDerA3
+};
+
+// Texture Images for trajedemoL1
+const imgTorsoL1 = new Image();
+imgTorsoL1.src = `${import.meta.env.BASE_URL}trajedemoL1/ruana.png?cb=` + new Date().getTime();
+
+const imgPiernaIzqL1 = new Image();
+imgPiernaIzqL1.src = `${import.meta.env.BASE_URL}trajedemoL1/piernaderecha1.png?cb=` + new Date().getTime(); // Swapped correctly
+
+const imgPiernaDerL1 = new Image();
+imgPiernaDerL1.src = `${import.meta.env.BASE_URL}trajedemoL1/piernaizquierda1.png?cb=` + new Date().getTime(); // Swapped correctly
+
+const partsMapL1 = {
+    torso: imgTorsoL1,
+    leftLeg: imgPiernaIzqL1,
+    rightLeg: imgPiernaDerL1
+};
+
+// Texture Images for trajedemoL2
+const imgTorsoL2 = new Image();
+imgTorsoL2.src = `${import.meta.env.BASE_URL}trajedemoL2/torso2.png?cb=` + new Date().getTime();
+
+const imgFaldaL2 = new Image();
+imgFaldaL2.src = `${import.meta.env.BASE_URL}trajedemoL2/falda2.png?cb=` + new Date().getTime();
+
+// Texture Images for trajedemoL3
+const imgTorsoL3 = new Image();
+imgTorsoL3.src = `${import.meta.env.BASE_URL}trajedemoL3/torsowayu.png?cb=` + new Date().getTime();
+
+const imgFaldaL3 = new Image();
+imgFaldaL3.src = `${import.meta.env.BASE_URL}trajedemoL3/faldawayu.png?cb=` + new Date().getTime();
+
+// Texture Images for trajedemoE1
+const imgTorsoE1 = new Image(); imgTorsoE1.src = `${import.meta.env.BASE_URL}trajedemoE1/torsog.png?cb=` + new Date().getTime();
+const imgBrazoIzqE1 = new Image(); imgBrazoIzqE1.src = `${import.meta.env.BASE_URL}trajedemoE1/brazoizquierdog.png?cb=` + new Date().getTime(); // physically left arm
+const imgBrazoDerE1 = new Image(); imgBrazoDerE1.src = `${import.meta.env.BASE_URL}trajedemoE1/brazoderechog.png?cb=` + new Date().getTime(); // physically right arm
+const imgPiernaIzqE1 = new Image(); imgPiernaIzqE1.src = `${import.meta.env.BASE_URL}trajedemoE1/piernaizquierdag.png?cb=` + new Date().getTime(); // physically left leg
+const imgPiernaDerE1 = new Image(); imgPiernaDerE1.src = `${import.meta.env.BASE_URL}trajedemoE1/piernaderechag.png?cb=` + new Date().getTime();
+
+const partsMapE1 = { torso: imgTorsoE1, leftArm: imgBrazoIzqE1, rightArm: imgBrazoDerE1, leftLeg: imgPiernaIzqE1, rightLeg: imgPiernaDerE1 };
+
+// Texture Images for trajedemoE2
+const imgTorsoE2 = new Image(); imgTorsoE2.src = `${import.meta.env.BASE_URL}trajedemoE2/torsopopayan.png?cb=` + new Date().getTime();
+const imgBrazoIzqE2 = new Image(); imgBrazoIzqE2.src = `${import.meta.env.BASE_URL}trajedemoE2/brazoizquierdopopayan.png?cb=` + new Date().getTime();
+const imgBrazoDerE2 = new Image(); imgBrazoDerE2.src = `${import.meta.env.BASE_URL}trajedemoE2/brazoderechopopayan.png?cb=` + new Date().getTime();
+const imgFaldaE2 = new Image(); imgFaldaE2.src = `${import.meta.env.BASE_URL}trajedemoE2/faldapopayan.png?cb=` + new Date().getTime();
+
+const partsMapE2 = { torso: imgTorsoE2, leftArm: imgBrazoIzqE2, rightArm: imgBrazoDerE2 }; 
+
+// Texture Images for trajedemoE3
+const imgTorsoE3 = new Image(); imgTorsoE3.src = `${import.meta.env.BASE_URL}trajedemoE3/torsorosa.png?cb=` + new Date().getTime();
+const imgBrazoIzqE3 = new Image(); imgBrazoIzqE3.src = `${import.meta.env.BASE_URL}trajedemoE3/brazoizquierdorosa.png?cb=` + new Date().getTime();
+const imgBrazoDerE3 = new Image(); imgBrazoDerE3.src = `${import.meta.env.BASE_URL}trajedemoE3/brazoderechorosa.png?cb=` + new Date().getTime();
+const imgFaldaE3 = new Image(); imgFaldaE3.src = `${import.meta.env.BASE_URL}trajedemoE3/faldarosa.png?cb=` + new Date().getTime();
+
+const partsMapE3 = { torso: imgTorsoE3, leftArm: imgBrazoIzqE3, rightArm: imgBrazoDerE3 };
 
 let videoElement = document.getElementById('webcam');
 let canvasElement = document.getElementById('three-canvas'); // Re-using the ID but as a 2D Canvas
@@ -322,27 +404,49 @@ async function renderLoop() {
             ctx.globalAlpha = 0.9;
             
             let genericTex = null;
-            if (chosenDemoOutfit !== 'trajedemoA1') {
+            if (['trajedemoA1', 'trajedemoA2', 'trajedemoA3', 'trajedemoL1', 'trajedemoL2', 'trajedemoL3', 'trajedemoE1', 'trajedemoE2', 'trajedemoE3'].includes(chosenDemoOutfit) === false) {
                 genericTex = getTextureForOutfit(chosenDemoOutfit);
             }
 
-            // Set up base material or image pattern
             if (chosenDemoOutfit === 'trajedemoA1') {
                 if (imgTorsoA1.complete && imgTorsoA1.naturalWidth > 0) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; // Transparent base, image draws over it
                 } else {
                     ctx.fillStyle = 'rgba(248, 250, 252, 0.9)'; // White fallback
                 }
+            } else if (chosenDemoOutfit === 'trajedemoA3') {
+                if (imgTorsoA3.complete && imgTorsoA3.naturalWidth > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; 
+                } else {
+                    ctx.fillStyle = 'rgba(254, 240, 138, 0.9)'; 
+                }
+            } else if (chosenDemoOutfit === 'trajedemoL1') {
+                if (typeof imgTorsoL1 !== 'undefined' && imgTorsoL1.complete && imgTorsoL1.naturalWidth > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; 
+                } else {
+                    ctx.fillStyle = 'rgba(212, 212, 216, 0.95)'; 
+                }
+            } else if (chosenDemoOutfit === 'trajedemoL2') {
+                if (typeof imgTorsoL2 !== 'undefined' && imgTorsoL2.complete && imgTorsoL2.naturalWidth > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; 
+                } else {
+                    ctx.fillStyle = 'rgba(253, 164, 175, 0.95)'; 
+                }
+            } else if (chosenDemoOutfit === 'trajedemoL3') {
+                if (typeof imgTorsoL3 !== 'undefined' && imgTorsoL3.complete && imgTorsoL3.naturalWidth > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; 
+                } else {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.95)'; 
+                }
+            } else if (chosenDemoOutfit === 'trajedemoE1') {
+                if (typeof imgTorsoE1 !== 'undefined' && imgTorsoE1.complete && imgTorsoE1.naturalWidth > 0) ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; else ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+            } else if (chosenDemoOutfit === 'trajedemoE2') {
+                if (typeof imgTorsoE2 !== 'undefined' && imgTorsoE2.complete && imgTorsoE2.naturalWidth > 0) ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; else ctx.fillStyle = 'rgba(76, 29, 149, 0.6)';
+            } else if (chosenDemoOutfit === 'trajedemoE3') {
+                if (typeof imgTorsoE3 !== 'undefined' && imgTorsoE3.complete && imgTorsoE3.naturalWidth > 0) ctx.fillStyle = 'rgba(255, 255, 255, 0.01)'; else ctx.fillStyle = 'rgba(252, 211, 77, 0.6)';
             } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.01)';
             } else if (chosenDemoOutfit === 'trajedemoA2') { ctx.fillStyle = 'rgba(219, 234, 254, 0.9)'; }
-            else if (chosenDemoOutfit === 'trajedemoA3') { ctx.fillStyle = 'rgba(254, 240, 138, 0.9)'; }
-            else if (chosenDemoOutfit === 'trajedemoL1') { ctx.fillStyle = 'rgba(212, 212, 216, 0.95)'; }
-            else if (chosenDemoOutfit === 'trajedemoL2') { ctx.fillStyle = 'rgba(253, 164, 175, 0.95)'; }
-            else if (chosenDemoOutfit === 'trajedemoL3') { ctx.fillStyle = 'rgba(167, 139, 250, 0.95)'; }
-            else if (chosenDemoOutfit === 'trajedemoE1') { ctx.fillStyle = 'rgba(15, 23, 42, 0.6)'; }
-            else if (chosenDemoOutfit === 'trajedemoE2') { ctx.fillStyle = 'rgba(76, 29, 149, 0.6)'; }
-            else if (chosenDemoOutfit === 'trajedemoE3') { ctx.fillStyle = 'rgba(131, 24, 67, 0.6)'; }
             else { ctx.fillStyle = fillStyle; }
 
             // === 1. TORSO & PELVIS (Combined shape) ===
@@ -393,53 +497,7 @@ async function renderLoop() {
 
             ctx.fill();
             
-            // If custom mannequin texture, draw it over the clipped path
-            if (chosenDemoOutfit === 'trajedemoA1' && imgTorsoA1.complete && imgTorsoA1.naturalWidth > 0) {
-                ctx.save();
-                ctx.clip(); // Clip to the torso path we just filled
-                
-                // Adjust Torso width to be closer to shoulder width
-                const drawWidth = shoulderW * 2.5;
-                const drawHeight = drawWidth * (imgTorsoA1.naturalHeight / imgTorsoA1.naturalWidth);
-                
-                // Center slightly below shoulders
-                const cy = midShoulderY + (drawHeight * 0.1);
-                ctx.drawImage(imgTorsoA1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
-                ctx.restore();
-            } else if (chosenDemoOutfit === 'trajedemoA2' && genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
-                // SPECIAL LOGIC FOR "BAREQUERA"
-                // Split the image: Top half goes to the torso, bottom half goes to the skirt/legs
-                ctx.save();
-                ctx.clip(); // Clip to the torso path we just filled
-                
-                // For barefoot dress, we scale it to fit the torso width.
-                const drawWidth = shoulderW * 2.8; 
-                // The image contains both top and bottom, so we adjust the full height
-                const imgRatio = genericTex.naturalHeight / genericTex.naturalWidth;
-                const fullDrawHeight = drawWidth * imgRatio;
-                
-                // Center the TOP half right below the shoulders
-                // So the middle of the image (waist line) falls around the hips
-                const cy = midShoulderY + (fullDrawHeight * 0.25);
-                
-                // Draw the full image; the torso clipping path will naturally cut off the arms
-                // making it look sleeveless. The bottom half will overlap into the hip area.
-                ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - fullDrawHeight/2, drawWidth, fullDrawHeight);
-                ctx.restore();
-            } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
-                ctx.save();
-                ctx.clip(); // Clip to the torso path we just filled
-                
-                // For generic texture, we scale it to fit the torso width, but maybe zoom in slightly
-                const drawWidth = shoulderW * 3.0;
-                const drawHeight = drawWidth * (genericTex.naturalHeight / genericTex.naturalWidth);
-                
-                // Center slightly below shoulders
-                const cy = midShoulderY + (drawHeight * 0.1);
-                // Tile or stretch the generic texture
-                ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
-                ctx.restore();
-            }
+            // (Torso overlay images have been moved to the end of the drawing sequence for proper layering)
             
             ctx.strokeStyle = strokeStyle;
             ctx.lineWidth = 0;
@@ -517,6 +575,85 @@ async function renderLoop() {
                         
                         ctx.restore();
                     }
+               } else if (partName && chosenDemoOutfit === 'trajedemoA3') {
+                    const imgPart = partsMapA3[partName];
+                    if (imgPart && imgPart.complete && imgPart.naturalWidth > 0) {
+                        ctx.save();
+                        ctx.clip(); // Clip to the limb path
+                        
+                        // Increase scaling massively to account for user's full frame images
+                        let drawHeight = len * 3.0; 
+                        let drawWidth = drawHeight * (imgPart.naturalWidth / imgPart.naturalHeight); 
+                        
+                        if(isLowerArm) {
+                            // Boost sizing specifically for lower segments to ensure visibility
+                            drawWidth *= 2.5;
+                            drawHeight *= 2.5;
+                        }
+                        
+                        const mx = (j1.x + j2.x) / 2;
+                        const my = (j1.y + j2.y) / 2;
+                        
+                        ctx.translate(mx, my);
+                        const limbAngle = Math.atan2(dy, dx);
+                        ctx.rotate(limbAngle - Math.PI/2); 
+
+                        ctx.drawImage(imgPart, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight);
+                        
+                        ctx.restore();
+                    }
+               } else if (partName && chosenDemoOutfit === 'trajedemoL1') {
+                    const imgPart = partsMapL1[partName];
+                    if (imgPart && imgPart.complete && imgPart.naturalWidth > 0) {
+                        ctx.save();
+                        ctx.clip(); // Clip to the limb path
+                        
+                        let drawHeight = len * 1.5; 
+                        let drawWidth = drawHeight * (imgPart.naturalWidth / imgPart.naturalHeight); 
+                        
+                        if(isLowerArm) {
+                            // Zoom for "antepierna" as requested
+                            drawWidth *= 4.0;
+                            drawHeight *= 4.0;
+                        }
+                        
+                        const mx = (j1.x + j2.x) / 2;
+                        const my = (j1.y + j2.y) / 2;
+                        
+                        ctx.translate(mx, my);
+                        const limbAngle = Math.atan2(dy, dx);
+                        ctx.rotate(limbAngle - Math.PI/2); 
+
+                        ctx.drawImage(imgPart, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight);
+                        
+                        ctx.restore();
+                    }
+               } else if (partName && ['trajedemoE1','trajedemoE2','trajedemoE3'].includes(chosenDemoOutfit)) {
+                    const partsMap = chosenDemoOutfit === 'trajedemoE1' ? partsMapE1 : (chosenDemoOutfit === 'trajedemoE2' ? partsMapE2 : partsMapE3);
+                    const imgPart = partsMap[partName];
+                    if (imgPart && imgPart.complete && imgPart.naturalWidth > 0) {
+                        ctx.save();
+                        ctx.clip(); // Clip to the limb path
+                        
+                        let drawHeight = len * 2.0; 
+                        let drawWidth = drawHeight * (imgPart.naturalWidth / imgPart.naturalHeight); 
+                        
+                        if(isLowerArm) {
+                            drawWidth *= 4.0;
+                            drawHeight *= 4.0;
+                        }
+                        
+                        const mx = (j1.x + j2.x) / 2;
+                        const my = (j1.y + j2.y) / 2;
+                        
+                        ctx.translate(mx, my);
+                        const limbAngle = Math.atan2(dy, dx);
+                        ctx.rotate(limbAngle - Math.PI/2); 
+
+                        ctx.drawImage(imgPart, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight);
+                        
+                        ctx.restore();
+                    }
                } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
                     ctx.save();
                     ctx.clip(); // Clip to the limb path
@@ -551,22 +688,21 @@ async function renderLoop() {
             const slvPuff = shoulderW * 0.15;
             const legThick = shoulderW * 0.2;
 
-            if (chosenDemoOutfit !== 'trajedemoA2') {
+            if (['trajedemoA2', 'trajedemoL1', 'trajedemoL2', 'trajedemoL3'].includes(chosenDemoOutfit) === false) {
                 // Left Arm
                 drawLimb(11, 13, slvPuff, 'leftArm', false); // Upper Arm
-                drawLimb(13, 15, slvPuff*0.8, 'leftArm', true); // Forearm (zoomed)
+                drawLimb(13, 15, slvPuff*0.8, 'leftArm', true); // Forearm
                 // Right Arm
                 drawLimb(12, 14, slvPuff, 'rightArm', false); // Upper Arm
-                drawLimb(14, 16, slvPuff*0.8, 'rightArm', true); // Forearm (zoomed)
+                drawLimb(14, 16, slvPuff*0.8, 'rightArm', true); // Forearm
             } else {
-                // For trajedemoA2 (Barequera), we want a sleeveless look
+                // For trajedemoA2, L1, L2, L3 we want a sleeveless look
                 // So we do NOT render the arm sleeves.
             }
 
-            // For trajedemoA2 we want a skirt effect instead of individual pant legs.
-            // The torso path was extended down, but we can also draw a skirt block here spanning both legs
-            if (chosenDemoOutfit === 'trajedemoA2') {
-                 if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+            // Grouping skirts correctly
+            if (['trajedemoA2', 'trajedemoL2', 'trajedemoL3', 'trajedemoE2', 'trajedemoE3'].includes(chosenDemoOutfit)) {
+                 if (chosenDemoOutfit === 'trajedemoA2' && imgFaldaA2 && imgFaldaA2.complete && imgFaldaA2.naturalWidth > 0) {
                       ctx.save();
                       
                       // Create a skirt path that bridges the gap between the two thighs
@@ -585,26 +721,206 @@ async function renderLoop() {
                           ctx.fill();
                           ctx.clip();
                           
-                          // Draw the BOTTOM half of the barequera image here
+                          // Draw the barequera falda image
                           const drawWidth = shoulderW * 3.0; // wider skirt
-                          const imgRatio = genericTex.naturalHeight / genericTex.naturalWidth;
-                          const fullDrawHeight = drawWidth * imgRatio;
+                          const drawHeight = drawWidth * (imgFaldaA2.naturalHeight / imgFaldaA2.naturalWidth);
                           
-                          // Align so the waist of the image is at the hips
-                          const cy = midHipY + (fullDrawHeight * 0.1); // Shift it down
-                          ctx.drawImage(genericTex, midHipX - drawWidth/2, cy - fullDrawHeight/2, drawWidth, fullDrawHeight);
+                          // Align so the top of the skirt is at the hips
+                          const cy = midHipY + (drawHeight * 0.2); // Shift it down
+                          
+                          ctx.drawImage(imgFaldaA2, midHipX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
                       }
                       
                       ctx.restore();
+                 } else if (chosenDemoOutfit === 'trajedemoL2' && typeof imgFaldaL2 !== 'undefined' && imgFaldaL2.complete && imgFaldaL2.naturalWidth > 0) {
+                      ctx.save();
+                      
+                      // Create a skirt path that bridges the gap between the two thighs
+                      if (pose[23].visibility > 0.5 && pose[24].visibility > 0.5 && pose[25].visibility > 0.5 && pose[26].visibility > 0.5) {
+                          const lKnee = mapPoint(pose[25]);
+                          const rKnee = mapPoint(pose[26]);
+                          
+                          ctx.beginPath();
+                          ctx.moveTo(lHip.x, lHip.y);
+                          ctx.lineTo(rHip.x, rHip.y);
+                          ctx.lineTo(rKnee.x + legThick, rKnee.y);
+                          ctx.lineTo(lKnee.x - legThick, lKnee.y);
+                          ctx.closePath();
+                          
+                          ctx.fill();
+                          ctx.clip();
+                          
+                          const drawWidth = shoulderW * 7.5; // Scaled up wider skirt
+                          const drawHeight = drawWidth * (imgFaldaL2.naturalHeight / imgFaldaL2.naturalWidth);
+                          
+                          // Align so the top of the skirt is at the hips
+                          const cy = midHipY + (drawHeight * 0.25); // Shift it down
+                          
+                          ctx.drawImage(imgFaldaL2, midHipX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                      }
+                      
+                      ctx.restore();
+                 } else if (chosenDemoOutfit === 'trajedemoL3' && typeof imgFaldaL3 !== 'undefined' && imgFaldaL3.complete && imgFaldaL3.naturalWidth > 0) {
+                      ctx.save();
+                      
+                      // Create a skirt path that bridges the gap between the two thighs
+                      if (pose[23].visibility > 0.5 && pose[24].visibility > 0.5 && pose[25].visibility > 0.5 && pose[26].visibility > 0.5) {
+                          const lKnee = mapPoint(pose[25]);
+                          const rKnee = mapPoint(pose[26]);
+                          
+                          ctx.beginPath();
+                          ctx.moveTo(lHip.x, lHip.y);
+                          ctx.lineTo(rHip.x, rHip.y);
+                          ctx.lineTo(rKnee.x + legThick, rKnee.y);
+                          ctx.lineTo(lKnee.x - legThick, lKnee.y);
+                          ctx.closePath();
+                          
+                          ctx.fill();
+                          ctx.clip();
+                          
+                          const drawWidth = shoulderW * 7.5; // Scaled up wider skirt
+                          const drawHeight = drawWidth * (imgFaldaL3.naturalHeight / imgFaldaL3.naturalWidth);
+                          
+                          // Align so the top of the skirt is at the hips
+                          const cy = midHipY + (drawHeight * 0.25); // Shift it down
+                          
+                          ctx.drawImage(imgFaldaL3, midHipX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                      }
+                      
+                      ctx.restore();
+                 } else if (['trajedemoE2', 'trajedemoE3'].includes(chosenDemoOutfit)) {
+                      let imgFalda = chosenDemoOutfit === 'trajedemoE2' ? imgFaldaE2 : imgFaldaE3;
+                      if (typeof imgFalda !== 'undefined' && imgFalda.complete && imgFalda.naturalWidth > 0) {
+                          ctx.save();
+                          if (pose[23].visibility > 0.5 && pose[24].visibility > 0.5 && pose[25].visibility > 0.5 && pose[26].visibility > 0.5) {
+                              const lKnee = mapPoint(pose[25]);
+                              const rKnee = mapPoint(pose[26]);
+                              ctx.beginPath();
+                              ctx.moveTo(lHip.x, lHip.y);
+                              ctx.lineTo(rHip.x, rHip.y);
+                              ctx.lineTo(rKnee.x + legThick, rKnee.y);
+                              ctx.lineTo(lKnee.x - legThick, lKnee.y);
+                              ctx.closePath();
+                              ctx.fill();
+                              ctx.clip();
+                              
+                              const drawWidth = shoulderW * 6.5; // Custom skirt width for E sets
+                              const drawHeight = drawWidth * (imgFalda.naturalHeight / imgFalda.naturalWidth);
+                              const cy = midHipY + (drawHeight * 0.25); 
+                              ctx.drawImage(imgFalda, midHipX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                          }
+                          ctx.restore();
+                      }
                  }
             } else {
                 // Standard individual pant legs
                 // Left Leg (thigh to knee)
                 drawLimb(23, 25, legThick, 'leftLeg', false); // Upper Leg (Bermuda)
-                drawLimb(25, 27, legThick*0.8, null, false); // Lower Leg (No texture)
+                if (chosenDemoOutfit !== 'trajedemoA1' && chosenDemoOutfit !== 'trajedemoE1') {
+                    drawLimb(25, 27, legThick*0.8, 'leftLeg', true); // Lower Leg
+                }
                 // Right Leg
                 drawLimb(24, 26, legThick, 'rightLeg', false); // Upper Leg (Bermuda)
-                drawLimb(26, 28, legThick*0.8, null, false); // Lower Leg (No texture)
+                if (chosenDemoOutfit !== 'trajedemoA1' && chosenDemoOutfit !== 'trajedemoE1') {
+                    drawLimb(26, 28, legThick*0.8, 'rightLeg', true); // Lower Leg
+                }
+            }
+
+            // === 3. TORSO OVERLAY (Layering fix) ===
+            // Reconstruct path for clipping Torso over everything else (legs/skirts)
+            ctx.beginPath();
+            ctx.moveTo(midShoulderX - neckW, neckY); 
+            ctx.quadraticCurveTo(slX, slY - shoulderW * 0.05, slX, slY);
+            ctx.quadraticCurveTo((slX + lHipDropX) / 2 - pad * 0.5, (slY + lHipDropY) / 2, lHipDropX, lHipDropY);
+            ctx.quadraticCurveTo(midHipX, midHipY + pad, rHipDropX, rHipDropY);
+            ctx.quadraticCurveTo((srX + rHipDropX) / 2 + pad * 0.5, (srY + rHipDropY) / 2, srX, srY);
+            ctx.quadraticCurveTo(srX, srY - shoulderW * 0.05, midShoulderX + neckW, neckY);
+            ctx.quadraticCurveTo(midShoulderX, neckY + shoulderW * 0.05, midShoulderX - neckW, neckY);
+            ctx.closePath();
+
+            // Draw torso textures
+            if (chosenDemoOutfit === 'trajedemoA1' && imgTorsoA1.complete && imgTorsoA1.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.5;
+                const drawHeight = drawWidth * (imgTorsoA1.naturalHeight / imgTorsoA1.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoA1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoA3' && imgTorsoA3.complete && imgTorsoA3.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.5; 
+                const drawHeight = drawWidth * (imgTorsoA3.naturalHeight / imgTorsoA3.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoA3, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoL1' && typeof imgTorsoL1 !== 'undefined' && imgTorsoL1.complete && imgTorsoL1.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 3.5; 
+                const drawHeight = drawWidth * (imgTorsoL1.naturalHeight / imgTorsoL1.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.15);
+                ctx.drawImage(imgTorsoL1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoL2' && typeof imgTorsoL2 !== 'undefined' && imgTorsoL2.complete && imgTorsoL2.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.8; 
+                const drawHeight = drawWidth * (imgTorsoL2.naturalHeight / imgTorsoL2.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoL2, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoL3' && typeof imgTorsoL3 !== 'undefined' && imgTorsoL3.complete && imgTorsoL3.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.8; 
+                const drawHeight = drawWidth * (imgTorsoL3.naturalHeight / imgTorsoL3.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoL3, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoE1' && typeof imgTorsoE1 !== 'undefined' && imgTorsoE1.complete && imgTorsoE1.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.5; 
+                const drawHeight = drawWidth * (imgTorsoE1.naturalHeight / imgTorsoE1.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoE1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoE2' && typeof imgTorsoE2 !== 'undefined' && imgTorsoE2.complete && imgTorsoE2.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.0; 
+                const drawHeight = drawWidth * (imgTorsoE2.naturalHeight / imgTorsoE2.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.05);
+                ctx.drawImage(imgTorsoE2, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoE3' && typeof imgTorsoE3 !== 'undefined' && imgTorsoE3.complete && imgTorsoE3.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 2.0; 
+                const drawHeight = drawWidth * (imgTorsoE3.naturalHeight / imgTorsoE3.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.05);
+                ctx.drawImage(imgTorsoE3, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (chosenDemoOutfit === 'trajedemoA2' && imgTorsoA2.complete && imgTorsoA2.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 3.0;
+                const sWidth = imgTorsoA2.naturalWidth;
+                const sHeight = imgTorsoA2.naturalHeight;
+                const drawHeight = drawWidth * (sHeight / sWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(imgTorsoA2, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); 
+                const drawWidth = shoulderW * 3.0;
+                const drawHeight = drawWidth * (genericTex.naturalHeight / genericTex.naturalWidth);
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
             }
 
             ctx.restore();
@@ -698,6 +1014,20 @@ function showVtoUI() {
     // Check if UI already exists
     if(document.getElementById('vto-ui-container')) return;
 
+    const outfitNames = {
+        'trajedemoA1': 'Traje Negro (Siglo XVI)',
+        'trajedemoA2': 'Barequera río Guadalupe',
+        'trajedemoA3': 'Antonio Villavicencio',
+        'trajedemoL1': 'Ruana boyacense',
+        'trajedemoL2': 'Misak hombre',
+        'trajedemoL3': 'Misak mujer',
+        'trajedemoE1': 'Traje gris satinado siglo XVII',
+        'trajedemoE2': 'Ñapanga de Popayán',
+        'trajedemoE3': 'Mochuelana de San Gil'
+    };
+
+    const getDisplayName = (id) => outfitNames[id] || id.replace('trajedemo', 'Traje ').toUpperCase();
+
     const container = document.createElement('div');
     container.id = 'vto-ui-container';
     container.style.position = 'absolute';
@@ -712,7 +1042,7 @@ function showVtoUI() {
     container.style.animation = 'fadeInUp 1s ease-out';
 
     const textLabel = document.createElement('div');
-    textLabel.innerHTML = `¡Este es el indicado!<br><span style="font-size: 1.5rem; font-weight: 600; color: #38bdf8;">${chosenDemoOutfit.toUpperCase()}</span>`;
+    textLabel.innerHTML = `¡Este es el indicado!<br><span style="font-size: 1.5rem; font-weight: 600; color: #38bdf8;">${getDisplayName(chosenDemoOutfit)}</span>`;
     textLabel.style.color = '#fff';
     textLabel.style.textAlign = 'center';
     textLabel.style.textShadow = '0 2px 10px rgba(0,0,0,0.8)';
@@ -738,10 +1068,33 @@ function showVtoUI() {
         chosenDemoOutfit = currentAvailableOutfits[idx];
         
         // Update label
-        textLabel.innerHTML = `Explorando opciones...<br><span style="font-size: 1.5rem; font-weight: 600; color: #38bdf8;">${chosenDemoOutfit.toUpperCase()}</span>`;
+        textLabel.innerHTML = `Explorando opciones...<br><span style="font-size: 1.5rem; font-weight: 600; color: #38bdf8;">${getDisplayName(chosenDemoOutfit)}</span>`;
     });
 
     container.appendChild(textLabel);
     container.appendChild(changeBtn);
     arLayer.appendChild(container);
+
+    // Subtle Home Button
+    const homeBtn = document.createElement('button');
+    homeBtn.innerHTML = '&#8962; Inicio'; 
+    homeBtn.style.position = 'absolute';
+    homeBtn.style.top = '24px';
+    homeBtn.style.left = '24px';
+    homeBtn.style.padding = '8px 16px';
+    homeBtn.style.background = 'rgba(15, 23, 42, 0.4)';
+    homeBtn.style.border = '1px solid rgba(255,255,255,0.2)';
+    homeBtn.style.color = '#fff';
+    homeBtn.style.borderRadius = '20px';
+    homeBtn.style.backdropFilter = 'blur(8px)';
+    homeBtn.style.cursor = 'pointer';
+    homeBtn.style.fontFamily = "'Outfit', sans-serif";
+    homeBtn.style.fontSize = '0.9rem';
+    homeBtn.style.zIndex = '101';
+    
+    homeBtn.addEventListener('click', () => {
+        window.location.reload(); 
+    });
+
+    arLayer.appendChild(homeBtn);
 }
