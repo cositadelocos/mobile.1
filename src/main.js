@@ -20,19 +20,19 @@ let currentAvailableOutfits = [];
 
 // Texture Images for trajedemoA1
 const imgTorsoA1 = new Image();
-imgTorsoA1.src = '/trajedemoA1/torsoDEMO1.png?cb=' + new Date().getTime();
+imgTorsoA1.src = `${import.meta.env.BASE_URL}trajedemoA1/torsoDEMO1.png?cb=` + new Date().getTime();
 
 const imgBrazoIzqA1 = new Image();
-imgBrazoIzqA1.src = '/trajedemoA1/brazoderechoDEMO1.png?cb=' + new Date().getTime();
+imgBrazoIzqA1.src = `${import.meta.env.BASE_URL}trajedemoA1/brazoderechoDEMO1.png?cb=` + new Date().getTime();
 
 const imgBrazoDerA1 = new Image();
-imgBrazoDerA1.src = '/trajedemoA1/brazoizquierdaDEMO1.png?cb=' + new Date().getTime();
+imgBrazoDerA1.src = `${import.meta.env.BASE_URL}trajedemoA1/brazoizquierdaDEMO1.png?cb=` + new Date().getTime();
 
 const imgPiernaIzqA1 = new Image();
-imgPiernaIzqA1.src = '/trajedemoA1/piernaderechaDEMO1.png?cb=' + new Date().getTime();
+imgPiernaIzqA1.src = `${import.meta.env.BASE_URL}trajedemoA1/piernaderechaDEMO1.png?cb=` + new Date().getTime();
 
 const imgPiernaDerA1 = new Image();
-imgPiernaDerA1.src = '/trajedemoA1/piernaizquierdaDEMO1.png?cb=' + new Date().getTime();
+imgPiernaDerA1.src = `${import.meta.env.BASE_URL}trajedemoA1/piernaizquierdaDEMO1.png?cb=` + new Date().getTime();
 
 // Define a map bridging limb names to their specific images
 const partsMapA1 = {
