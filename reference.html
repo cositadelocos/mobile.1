@@ -1,0 +1,883 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Espejo de &Eacute;poca - Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === TOP BAR === */
+    .top-bar {
+      height: 36px;
+      background: #0d0d15;
+      border-bottom: 1px solid #1a1a2a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .top-bar a {
+      color: #7799ff;
+      text-decoration: none;
+      font-size: 0.78rem;
+    }
+    .top-bar a:hover { text-decoration: underline; }
+    .top-bar .title {
+      font-size: 0.78rem;
+      color: #666;
+      font-family: 'Georgia', serif;
+    }
+    .top-bar .status {
+      font-size: 0.68rem;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #444;
+      transition: background 0.3s;
+    }
+    .status-dot.camera-on { background: #00ff41; box-shadow: 0 0 6px rgba(0,255,65,0.4); }
+    .status-dot.pose-on { background: #d4a574; box-shadow: 0 0 6px rgba(212,165,116,0.4); }
+
+    /* === MIRROR AREA === */
+    .mirror-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #050508;
+    }
+    #videoEl {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+    #overlayCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Garment fade transition */
+    #garmentCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 11;
+      transition: opacity 0.3s;
+    }
+
+    /* No person message */
+    .no-person {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    .no-person.hidden { opacity: 0; }
+    .no-person .np-icon { font-size: 3rem; margin-bottom: 12px; display: block; opacity: 0.5; }
+    .no-person .np-text {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.6);
+      font-family: 'Georgia', serif;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    }
+    .no-person .np-sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      transition: opacity 0.6s;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #1a1a2a;
+      border-top-color: #d4a574;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.85rem; color: #666; }
+    .loading-sub { font-size: 0.72rem; color: #333; margin-top: 6px; }
+
+    /* Garment info overlay */
+    .garment-info {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .garment-info .gi-name {
+      font-family: 'Georgia', serif;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.8);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    }
+    .garment-info .gi-period {
+      font-size: 0.75rem;
+      color: rgba(212,165,116,0.7);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+      margin-top: 2px;
+    }
+
+    /* Debug landmarks toggle */
+    .debug-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 30;
+      background: rgba(10,10,20,0.6);
+      border: 1px solid #1a1a2a;
+      color: #555;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      font-family: inherit;
+      backdrop-filter: blur(4px);
+    }
+    .debug-toggle:hover { color: #888; border-color: #333; }
+    .debug-toggle.active { color: #d4a574; border-color: #3a2a1a; }
+
+    /* === SELECTOR BAR === */
+    .selector-bar {
+      height: 90px;
+      background: #0d0d15;
+      border-top: 1px solid #1a1a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 16px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .traje-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 10px;
+      border: 3px solid #1a1a2a;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .traje-btn:hover {
+      border-color: #555;
+      transform: scale(1.05);
+    }
+    .traje-btn.active {
+      border-color: #d4a574;
+      box-shadow: 0 0 16px rgba(212,165,116,0.3);
+      transform: scale(1.08);
+    }
+    .traje-btn .swatch {
+      position: absolute;
+      inset: 0;
+    }
+    .traje-btn .btn-label {
+      position: absolute;
+      bottom: 3px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 0.5rem;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      font-family: 'Georgia', serif;
+      letter-spacing: 0.02em;
+    }
+    .traje-btn .btn-key {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: 0.5rem;
+      color: rgba(255,255,255,0.25);
+      font-family: 'Consolas', monospace;
+    }
+
+    /* Swatch textures */
+    .sw-colonial {
+      background: linear-gradient(135deg, #b8860b, #daa520, #b8860b);
+    }
+    .sw-colonial::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.06) 3px, rgba(255,255,255,0.06) 4px);
+    }
+    .sw-republicano {
+      background: linear-gradient(135deg, #722f37, #8b3a3a, #5c1a1a);
+    }
+    .sw-republicano::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 3px);
+    }
+    .sw-tradicional {
+      background: linear-gradient(135deg, #f5f0e8, #e8d8c8, #f5f0e8);
+    }
+    .sw-tradicional::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-conic-gradient(rgba(200,40,40,0.1) 0% 25%, transparent 0% 50%) 0 0 / 10px 10px;
+    }
+    .sw-gala {
+      background: linear-gradient(135deg, #1a1a2a, #2a2a3a, #1a1a2a);
+    }
+    .sw-gala::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,0.03) 5px, rgba(255,255,255,0.03) 6px);
+    }
+
+    /* Arduino connect button */
+    .arduino-btn {
+      height: 68px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 2px dashed #1a2a3a;
+      background: transparent;
+      color: #335;
+      font-size: 0.6rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .arduino-btn:hover { border-color: #008080; color: #008080; }
+    .arduino-btn.connected { border-color: #008080; border-style: solid; color: #00aaaa; }
+    .arduino-btn .ard-icon { font-size: 1.2rem; }
+
+    /* Separator */
+    .selector-sep {
+      width: 1px;
+      height: 40px;
+      background: #1a1a2a;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .traje-btn { width: 58px; height: 58px; }
+      .selector-bar { height: 76px; gap: 7px; }
+      .arduino-btn { padding: 0 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="espejo-epoca.html">&larr; Documentaci&oacute;n</a>
+    <span class="title">Espejo de &Eacute;poca &mdash; Demo</span>
+    <div class="status">
+      <div class="status-dot" id="camDot"></div>
+      <span id="statusText">Iniciando...</span>
+    </div>
+  </div>
+
+  <div class="mirror-area" id="mirrorArea">
+    <video id="videoEl" autoplay playsinline muted></video>
+    <canvas id="overlayCanvas"></canvas>
+    <canvas id="garmentCanvas"></canvas>
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Cargando MediaPipe Pose...</div>
+      <div class="loading-sub">Esto puede tardar unos segundos la primera vez</div>
+    </div>
+
+    <div class="no-person hidden" id="noPerson">
+      <span class="np-icon">&#x1FA9E;</span>
+      <div class="np-text">Col&oacute;cate frente a la pantalla</div>
+      <div class="np-sub">El espejo detectar&aacute; tu cuerpo autom&aacute;ticamente</div>
+    </div>
+
+    <div class="garment-info" id="garmentInfo">
+      <div class="gi-name" id="giName">Traje Colonial</div>
+      <div class="gi-period" id="giPeriod">Siglo XVIII</div>
+    </div>
+
+    <button class="debug-toggle" id="debugToggle" onclick="toggleDebug()">landmarks</button>
+  </div>
+
+  <div class="selector-bar">
+    <button class="traje-btn active" data-traje="0" onclick="selectTraje(0)">
+      <div class="swatch sw-colonial"></div>
+      <span class="btn-key">1</span>
+      <span class="btn-label">Colonial</span>
+    </button>
+    <button class="traje-btn" data-traje="1" onclick="selectTraje(1)">
+      <div class="swatch sw-republicano"></div>
+      <span class="btn-key">2</span>
+      <span class="btn-label">Republicano</span>
+    </button>
+    <button class="traje-btn" data-traje="2" onclick="selectTraje(2)">
+      <div class="swatch sw-tradicional"></div>
+      <span class="btn-key">3</span>
+      <span class="btn-label">Tradicional</span>
+    </button>
+    <button class="traje-btn" data-traje="3" onclick="selectTraje(3)">
+      <div class="swatch sw-gala"></div>
+      <span class="btn-key">4</span>
+      <span class="btn-label">Gala</span>
+    </button>
+    <div class="selector-sep"></div>
+    <button class="arduino-btn" id="arduinoBtn" onclick="connectArduino()">
+      <span class="ard-icon">&#128290;</span>
+      Arduino
+    </button>
+  </div>
+
+<!-- MediaPipe Pose -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+<script>
+// === TRAJES ===
+const TRAJES = [
+  {
+    name: 'Traje Colonial',
+    period: 'Siglo XVIII',
+    // Dorado brocado
+    fill: 'rgba(218,165,32,0.45)',
+    stroke: 'rgba(184,134,11,0.7)',
+    accent: 'rgba(255,215,0,0.3)',
+    pattern: 'brocade',
+    collar: true,
+    sleevePuff: 1.4,
+    skirtFlare: 1.3
+  },
+  {
+    name: 'Traje Republicano',
+    period: 'Siglo XIX',
+    // Burdeos terciopelo
+    fill: 'rgba(139,58,58,0.5)',
+    stroke: 'rgba(114,47,55,0.7)',
+    accent: 'rgba(180,60,60,0.3)',
+    pattern: 'velvet',
+    collar: true,
+    sleevePuff: 1.0,
+    skirtFlare: 1.05
+  },
+  {
+    name: 'Traje Tradicional',
+    period: 'Siglo XX',
+    // Blanco con rojo
+    fill: 'rgba(240,235,225,0.5)',
+    stroke: 'rgba(200,40,40,0.5)',
+    accent: 'rgba(200,40,40,0.15)',
+    pattern: 'woven',
+    collar: false,
+    sleevePuff: 1.1,
+    skirtFlare: 1.15
+  },
+  {
+    name: 'Traje de Gala',
+    period: 'Contempor\u00e1neo',
+    // Negro seda
+    fill: 'rgba(20,20,35,0.55)',
+    stroke: 'rgba(80,80,100,0.5)',
+    accent: 'rgba(100,100,130,0.15)',
+    pattern: 'silk',
+    collar: false,
+    sleevePuff: 1.0,
+    skirtFlare: 1.0
+  }
+];
+
+let currentTraje = 0;
+let showDebug = false;
+let personDetected = false;
+let lastLandmarks = null;
+let garmentOpacity = 1;
+let fadeTimeout = null;
+
+// === TRAJE SELECTION ===
+function selectTraje(idx) {
+  if (idx === currentTraje) return;
+  // Fade out
+  const gc = document.getElementById('garmentCanvas');
+  gc.style.opacity = '0';
+  clearTimeout(fadeTimeout);
+  fadeTimeout = setTimeout(() => {
+    currentTraje = idx;
+    gc.style.opacity = '1';
+  }, 150);
+
+  document.querySelectorAll('.traje-btn').forEach(b => b.classList.toggle('active', +b.dataset.traje === idx));
+  const t = TRAJES[idx];
+  document.getElementById('giName').textContent = t.name;
+  document.getElementById('giPeriod').textContent = t.period;
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key >= '1' && e.key <= '4') selectTraje(+e.key - 1);
+});
+
+// Debug
+function toggleDebug() {
+  showDebug = !showDebug;
+  document.getElementById('debugToggle').classList.toggle('active', showDebug);
+}
+
+// === CAMERA ===
+const videoEl = document.getElementById('videoEl');
+const overlayCanvas = document.getElementById('overlayCanvas');
+const garmentCanvas = document.getElementById('garmentCanvas');
+const overlayCtx = overlayCanvas.getContext('2d');
+const garmentCtx = garmentCanvas.getContext('2d');
+
+function resizeCanvases() {
+  const area = document.getElementById('mirrorArea');
+  const w = area.clientWidth;
+  const h = area.clientHeight;
+  overlayCanvas.width = w;
+  overlayCanvas.height = h;
+  garmentCanvas.width = w;
+  garmentCanvas.height = h;
+}
+window.addEventListener('resize', resizeCanvases);
+resizeCanvases();
+
+// === MEDIAPIPE POSE ===
+const pose = new Pose({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+});
+pose.setOptions({
+  modelComplexity: 1,
+  smoothLandmarks: true,
+  enableSegmentation: false,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+
+pose.onResults(onPoseResults);
+
+// Start camera
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    document.getElementById('camDot').classList.add('camera-on');
+    document.getElementById('statusText').textContent = 'Cargando modelo...';
+
+    // Start processing loop
+    processFrame();
+  } catch (err) {
+    document.getElementById('statusText').textContent = 'Error: ' + err.message;
+    document.getElementById('loadingOverlay').querySelector('.loading-text').textContent = 'No se pudo acceder a la c\u00e1mara';
+    document.getElementById('loadingOverlay').querySelector('.loading-sub').textContent = err.message;
+  }
+}
+
+let frameCount = 0;
+async function processFrame() {
+  if (videoEl.readyState >= 2) {
+    await pose.send({ image: videoEl });
+  }
+  requestAnimationFrame(processFrame);
+}
+
+let modelLoaded = false;
+
+function onPoseResults(results) {
+  if (!modelLoaded) {
+    modelLoaded = true;
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('statusText').textContent = 'Activo';
+    document.getElementById('camDot').classList.add('pose-on');
+  }
+
+  resizeCanvases();
+  const w = overlayCanvas.width;
+  const h = overlayCanvas.height;
+
+  // Clear
+  overlayCtx.clearRect(0, 0, w, h);
+  garmentCtx.clearRect(0, 0, w, h);
+
+  if (results.poseLandmarks) {
+    lastLandmarks = results.poseLandmarks;
+    if (!personDetected) {
+      personDetected = true;
+      document.getElementById('noPerson').classList.add('hidden');
+    }
+
+    // Mirror landmarks (x is already 0-1 from left, we mirror in drawing)
+    const lm = results.poseLandmarks.map(p => ({
+      x: (1 - p.x) * w,
+      y: p.y * h,
+      z: p.z,
+      visibility: p.visibility
+    }));
+
+    if (showDebug) drawLandmarks(lm, w, h);
+    drawGarment(lm, w, h);
+  } else {
+    if (personDetected) {
+      personDetected = false;
+      document.getElementById('noPerson').classList.remove('hidden');
+    }
+  }
+}
+
+// === DRAW LANDMARKS ===
+function drawLandmarks(lm, w, h) {
+  const ctx = overlayCtx;
+  const keyPoints = [0, 11, 12, 23, 24];
+  const connections = [[11,12],[11,23],[12,24],[23,24]];
+
+  // Connections
+  ctx.strokeStyle = 'rgba(212,165,116,0.4)';
+  ctx.lineWidth = 2;
+  connections.forEach(([a,b]) => {
+    ctx.beginPath();
+    ctx.moveTo(lm[a].x, lm[a].y);
+    ctx.lineTo(lm[b].x, lm[b].y);
+    ctx.stroke();
+  });
+
+  // Points
+  keyPoints.forEach(i => {
+    ctx.beginPath();
+    ctx.arc(lm[i].x, lm[i].y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(212,165,116,0.8)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Mid hip
+  const midX = (lm[23].x + lm[24].x) / 2;
+  const midY = (lm[23].y + lm[24].y) / 2;
+  ctx.beginPath();
+  ctx.arc(midX, midY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(136,187,68,0.8)';
+  ctx.fill();
+}
+
+// === DRAW GARMENT ===
+function drawGarment(lm, w, h) {
+  const ctx = garmentCtx;
+  const traje = TRAJES[currentTraje];
+
+  // Key points
+  const lShoulder = lm[11];
+  const rShoulder = lm[12];
+  const lHip = lm[23];
+  const rHip = lm[24];
+  const nose = lm[0];
+  const lElbow = lm[13];
+  const rElbow = lm[14];
+  const lWrist = lm[15];
+  const rWrist = lm[16];
+
+  // Measurements
+  const shoulderW = Math.hypot(rShoulder.x - lShoulder.x, rShoulder.y - lShoulder.y);
+  const torsoH = Math.hypot(
+    (lHip.x + rHip.x)/2 - (lShoulder.x + rShoulder.x)/2,
+    (lHip.y + rHip.y)/2 - (lShoulder.y + rShoulder.y)/2
+  );
+  const midShoulderX = (lShoulder.x + rShoulder.x) / 2;
+  const midShoulderY = (lShoulder.y + rShoulder.y) / 2;
+  const midHipX = (lHip.x + rHip.x) / 2;
+  const midHipY = (lHip.y + rHip.y) / 2;
+
+  // Body rotation angle
+  const angle = Math.atan2(rShoulder.y - lShoulder.y, rShoulder.x - lShoulder.x);
+
+  const pad = shoulderW * 0.15;
+  const puff = traje.sleevePuff;
+  const flare = traje.skirtFlare;
+
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+
+  // === TORSO (main body) ===
+  ctx.beginPath();
+  // Shoulder line with padding
+  const slX = lShoulder.x - pad * Math.cos(angle);
+  const slY = lShoulder.y - pad * Math.sin(angle);
+  const srX = rShoulder.x + pad * Math.cos(angle);
+  const srY = rShoulder.y + pad * Math.sin(angle);
+
+  // Hip line with flare
+  const hipW = Math.hypot(rHip.x - lHip.x, rHip.y - lHip.y);
+  const hipAngle = Math.atan2(rHip.y - lHip.y, rHip.x - lHip.x);
+  const hipPad = (shoulderW * flare - hipW) / 2;
+  const hlX = lHip.x - hipPad * Math.cos(hipAngle);
+  const hlY = lHip.y - hipPad * Math.sin(hipAngle);
+  const hrX = rHip.x + hipPad * Math.cos(hipAngle);
+  const hrY = rHip.y + hipPad * Math.sin(hipAngle);
+
+  // Neckline
+  const neckY = midShoulderY - shoulderW * 0.08;
+  const neckW = shoulderW * 0.18;
+
+  ctx.moveTo(midShoulderX - neckW, neckY);
+  // Left shoulder
+  ctx.quadraticCurveTo(slX, slY - shoulderW * 0.05, slX, slY);
+  // Left side
+  ctx.quadraticCurveTo(
+    (slX + hlX) / 2 - pad * 0.3, (slY + hlY) / 2,
+    hlX, hlY
+  );
+  // Bottom
+  ctx.lineTo(hrX, hrY);
+  // Right side
+  ctx.quadraticCurveTo(
+    (srX + hrX) / 2 + pad * 0.3, (srY + hrY) / 2,
+    srX, srY
+  );
+  // Right shoulder back to neck
+  ctx.quadraticCurveTo(srX, srY - shoulderW * 0.05, midShoulderX + neckW, neckY);
+  // Neckline curve
+  ctx.quadraticCurveTo(midShoulderX, neckY + shoulderW * 0.06, midShoulderX - neckW, neckY);
+  ctx.closePath();
+
+  // Fill
+  ctx.fillStyle = traje.fill;
+  ctx.fill();
+  ctx.strokeStyle = traje.stroke;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Pattern overlay
+  drawPattern(ctx, traje.pattern, midShoulderX - shoulderW * 0.6, neckY, shoulderW * 1.2, torsoH * 1.1, traje.accent);
+
+  // === COLLAR (if applicable) ===
+  if (traje.collar) {
+    ctx.beginPath();
+    const collarH = shoulderW * 0.12;
+    ctx.moveTo(midShoulderX - neckW * 1.3, neckY - collarH);
+    ctx.quadraticCurveTo(midShoulderX, neckY - collarH * 0.3, midShoulderX + neckW * 1.3, neckY - collarH);
+    ctx.quadraticCurveTo(midShoulderX + neckW, neckY, midShoulderX + neckW, neckY);
+    ctx.lineTo(midShoulderX - neckW, neckY);
+    ctx.quadraticCurveTo(midShoulderX - neckW, neckY, midShoulderX - neckW * 1.3, neckY - collarH);
+    ctx.closePath();
+    ctx.fillStyle = traje.fill;
+    ctx.fill();
+    ctx.strokeStyle = traje.stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // === SLEEVES ===
+  drawSleeve(ctx, lShoulder, lElbow, lWrist, shoulderW, puff, traje, -1);
+  drawSleeve(ctx, rShoulder, rElbow, rWrist, shoulderW, puff, traje, 1);
+
+  // === BELT/WAIST LINE ===
+  const waistY = midShoulderY + torsoH * 0.55;
+  const waistLeft = lShoulder.x + (lHip.x - lShoulder.x) * 0.55 - pad * 0.5;
+  const waistRight = rShoulder.x + (rHip.x - rShoulder.x) * 0.55 + pad * 0.5;
+  ctx.beginPath();
+  ctx.moveTo(waistLeft, waistY);
+  ctx.lineTo(waistRight, waistY);
+  ctx.strokeStyle = traje.stroke;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // === CENTER LINE (decorative) ===
+  ctx.beginPath();
+  ctx.moveTo(midShoulderX, neckY + shoulderW * 0.06);
+  ctx.lineTo(midHipX, midHipY);
+  ctx.strokeStyle = traje.accent;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+}
+
+function drawSleeve(ctx, shoulder, elbow, wrist, shoulderW, puff, traje, side) {
+  const sleeveW = shoulderW * 0.12 * puff;
+
+  ctx.beginPath();
+  // Perpendicular offset for sleeve width
+  const dx = elbow.x - shoulder.x;
+  const dy = elbow.y - shoulder.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len * sleeveW;
+  const ny = dx / len * sleeveW;
+
+  ctx.moveTo(shoulder.x + nx, shoulder.y + ny);
+  ctx.quadraticCurveTo(
+    (shoulder.x + elbow.x) / 2 + nx * 1.2,
+    (shoulder.y + elbow.y) / 2 + ny * 1.2,
+    elbow.x + nx * 0.7,
+    elbow.y + ny * 0.7
+  );
+  ctx.lineTo(elbow.x - nx * 0.7, elbow.y - ny * 0.7);
+  ctx.quadraticCurveTo(
+    (shoulder.x + elbow.x) / 2 - nx * 1.2,
+    (shoulder.y + elbow.y) / 2 - ny * 1.2,
+    shoulder.x - nx,
+    shoulder.y - ny
+  );
+  ctx.closePath();
+
+  ctx.fillStyle = traje.fill;
+  ctx.fill();
+  ctx.strokeStyle = traje.stroke;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function drawPattern(ctx, type, x, y, w, h, color) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+
+  if (type === 'brocade') {
+    for (let py = y; py < y + h; py += 14) {
+      for (let px = x; px < x + w; px += 14) {
+        ctx.fillStyle = color;
+        ctx.fillRect(px, py, 6, 1);
+        ctx.fillRect(px + 3, py + 7, 6, 1);
+      }
+    }
+  } else if (type === 'velvet') {
+    for (let py = y; py < y + h; py += 5) {
+      ctx.fillStyle = py % 10 === 0 ? color : 'transparent';
+      ctx.fillRect(x, py, w, 1);
+    }
+  } else if (type === 'woven') {
+    for (let py = y; py < y + h; py += 18) {
+      for (let px = x; px < x + w; px += 18) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px + 3, py + 3, 12, 12);
+        ctx.beginPath();
+        ctx.moveTo(px + 5, py + 9);
+        ctx.lineTo(px + 13, py + 9);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(px + 9, py + 5);
+        ctx.lineTo(px + 9, py + 13);
+        ctx.stroke();
+      }
+    }
+  } else if (type === 'silk') {
+    for (let i = 0; i < 20; i++) {
+      const px = x + (i / 20) * w;
+      ctx.beginPath();
+      ctx.moveTo(px, y);
+      ctx.lineTo(px + w * 0.08, y + h);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+// === ARDUINO WEB SERIAL ===
+let serialPort = null;
+let serialReader = null;
+
+async function connectArduino() {
+  if (!('serial' in navigator)) {
+    alert('Web Serial API no soportada. Usa Chrome.');
+    return;
+  }
+  try {
+    serialPort = await navigator.serial.requestPort();
+    await serialPort.open({ baudRate: 9600 });
+    document.getElementById('arduinoBtn').classList.add('connected');
+    document.getElementById('arduinoBtn').innerHTML = '<span class="ard-icon">&#128290;</span>Conectado';
+
+    const decoder = new TextDecoderStream();
+    serialPort.readable.pipeTo(decoder.writable);
+    const reader = decoder.readable.getReader();
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += value;
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        const cmd = line.trim();
+        if (cmd >= '1' && cmd <= '4') {
+          selectTraje(+cmd - 1);
+        }
+      }
+    }
+  } catch (err) {
+    console.log('Serial:', err.message);
+  }
+}
+
+// === INIT ===
+startCamera();
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"387be2a46c7f410f814ca48c8ed7c6dc","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+

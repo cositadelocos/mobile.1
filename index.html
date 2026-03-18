@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Probador Ancestral AR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <!-- Global ambient background -->
+    <div id="ambient-bg"></div>
+
+    <div id="app">
+      <!-- AR Viewport: Video, Three.js, and Scanner Overlay -->
+      <div id="ar-layer">
+        <video id="webcam" autoplay playsinline style="display:none;"></video>
+        <canvas id="three-canvas"></canvas>
+        <div id="scanner-fx"></div>
+      </div>
+
+      <!-- User Interface Layer -->
+      <div id="ui-layer">
+        
+        <header class="app-header">
+          <h1>Texturas Ancestrales</h1>
+          <p>Experimenta el tejido en tu propia piel</p>
+        </header>
+
+        <main class="materials-scroll-container">
+          
+          <div class="material-card" id="card-algodon" data-material="algodon">
+            <div class="material-texture algodon-texture"></div>
+            <div class="card-content">
+              <h2>Algodón</h2>
+              <p>Fibra natural mate, relieve suave.</p>
+            </div>
+          </div>
+
+          <div class="material-card" id="card-lana" data-material="lana">
+             <div class="material-texture lana-texture"></div>
+             <div class="card-content">
+               <h2>Lana</h2>
+               <p>Tejido grueso y cálido.</p>
+             </div>
+          </div>
+
+          <div class="material-card" id="card-encaje" data-material="encaje">
+             <div class="material-texture encaje-texture"></div>
+             <div class="card-content">
+               <h2>Encaje</h2>
+               <p>Transparencias y calados.</p>
+             </div>
+          </div>
+
+        </main>
+
+        <div id="loading-overlay" class="hidden">
+           <div class="spinner"></div>
+           <p>Iniciando experiencia AR...</p>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- SVG Filter for organic noise (used in CSS materials) -->
+    <svg style="display:none;">
+      <filter id="noiseFilter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+      </filter>
+    </svg>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
