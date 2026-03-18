@@ -18,6 +18,19 @@ const demoOutfitsMap = {
 };
 let currentAvailableOutfits = [];
 
+// Generic single-image textures for all other outfits
+const genericTextures = {}; // e.g. { 'trajedemoA2': Image }
+
+function getTextureForOutfit(outfitName) {
+    if (outfitName === 'trajedemoA1') return null; // handled separately
+    if (!genericTextures[outfitName]) {
+        const img = new Image();
+        img.src = `${import.meta.env.BASE_URL}${outfitName}/textura.png?cb=` + new Date().getTime();
+        genericTextures[outfitName] = img;
+    }
+    return genericTextures[outfitName];
+}
+
 // Texture Images for trajedemoA1
 const imgTorsoA1 = new Image();
 imgTorsoA1.src = `${import.meta.env.BASE_URL}trajedemoA1/torsoDEMO1.png?cb=` + new Date().getTime();
@@ -303,6 +316,11 @@ async function renderLoop() {
             ctx.save();
             ctx.globalAlpha = 0.9;
             
+            let genericTex = null;
+            if (chosenDemoOutfit !== 'trajedemoA1') {
+                genericTex = getTextureForOutfit(chosenDemoOutfit);
+            }
+
             // Set up base material or image pattern
             if (chosenDemoOutfit === 'trajedemoA1') {
                 if (imgTorsoA1.complete && imgTorsoA1.naturalWidth > 0) {
@@ -310,6 +328,8 @@ async function renderLoop() {
                 } else {
                     ctx.fillStyle = 'rgba(248, 250, 252, 0.9)'; // White fallback
                 }
+            } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.01)';
             } else if (chosenDemoOutfit === 'trajedemoA2') { ctx.fillStyle = 'rgba(219, 234, 254, 0.9)'; }
             else if (chosenDemoOutfit === 'trajedemoA3') { ctx.fillStyle = 'rgba(254, 240, 138, 0.9)'; }
             else if (chosenDemoOutfit === 'trajedemoL1') { ctx.fillStyle = 'rgba(212, 212, 216, 0.95)'; }
@@ -380,6 +400,18 @@ async function renderLoop() {
                 // Center slightly below shoulders
                 const cy = midShoulderY + (drawHeight * 0.1);
                 ctx.drawImage(imgTorsoA1, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
+                ctx.restore();
+            } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                ctx.save();
+                ctx.clip(); // Clip to the torso path we just filled
+                
+                // For generic texture, we scale it to fit the torso width, but maybe zoom in slightly
+                const drawWidth = shoulderW * 3.0;
+                const drawHeight = drawWidth * (genericTex.naturalHeight / genericTex.naturalWidth);
+                
+                // Center slightly below shoulders
+                const cy = midShoulderY + (drawHeight * 0.1);
+                ctx.drawImage(genericTex, midShoulderX - drawWidth/2, cy - drawHeight/2, drawWidth, drawHeight);
                 ctx.restore();
             }
             
@@ -459,6 +491,32 @@ async function renderLoop() {
                         
                         ctx.restore();
                     }
+               } else if (genericTex && genericTex.complete && genericTex.naturalWidth > 0) {
+                    ctx.save();
+                    ctx.clip(); // Clip to the limb path
+                    
+                    // We use the length of the limb segment (len)
+                    let drawHeight = len * 2.5; // Zoom in a bit more for generic textures on limbs
+                    let drawWidth = drawHeight * (genericTex.naturalWidth / genericTex.naturalHeight); 
+                    
+                    if(isLowerArm) {
+                        drawWidth *= 2.0;
+                        drawHeight *= 2.0;
+                    }
+                    
+                    // Center point calculation for drawing
+                    const mx = (j1.x + j2.x) / 2;
+                    const my = (j1.y + j2.y) / 2;
+                    
+                    // We rotate the canvas to align the texture with the limb angle
+                    ctx.translate(mx, my);
+                    const limbAngle = Math.atan2(dy, dx);
+                    ctx.rotate(limbAngle - Math.PI/2); 
+
+                    // Draw centered at the origin
+                    ctx.drawImage(genericTex, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight);
+                    
+                    ctx.restore();
                }
 
                ctx.stroke();
